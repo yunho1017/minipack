@@ -3,7 +3,6 @@ import { resolvePath, localModulePath } from "./resolve";
 import { loadModule } from "./loader";
 import { emitError } from "./utils/error";
 import { loadConfigByPath } from "./utils/config";
-import { dirname } from "path";
 
 const babylon = require("babylon");
 const traverse = require("babel-traverse").default;
@@ -57,7 +56,11 @@ const traverse = require("babel-traverse").default;
 
     for (const asset of queue) {
       for (const relativePath of asset.dependencies) {
-        const absolutePath = await resolvePath(relativePath, asset.filename);
+        const absolutePath = await resolvePath(
+          relativePath,
+          asset.filename,
+          options
+        );
 
         let depID = fileModuleIdMap.get(absolutePath);
         if (depID === undefined) {
@@ -114,7 +117,6 @@ const traverse = require("babel-traverse").default;
   }
 
   const entry = options.entry || process.argv[2];
-
   let entryFile = entry
     ? await localModulePath(entry, process.cwd())
     : undefined;
@@ -129,12 +131,9 @@ const traverse = require("babel-traverse").default;
 
   const output = options.output || "dist";
 
-  // 디렉토리가 존재하지 않으면 생성
   if (!existsSync(output)) {
     mkdirSync(output, { recursive: true });
   }
-
-  // 파일 생성 및 내용 쓰기
 
   writeFileSync(`${output}/index.js`, result, "utf8");
 })();

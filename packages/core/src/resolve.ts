@@ -1,6 +1,7 @@
 import { existsSync as exists, promises, statSync as stat } from "fs";
 import { basename, dirname, extname, isAbsolute, join, resolve } from "path";
 import { emitError } from "./utils/error";
+import { ConfigOptions } from "./utils/config";
 let isFile = (path: string) => exists(path) && stat(path).isFile();
 let isDir = (path: string) => exists(path) && stat(path).isDirectory();
 
@@ -74,15 +75,28 @@ async function npmModulePath(pkg: string, from: string): Promise<string> {
   return emitError(`Cannot find module '${pkg}'.`);
 }
 
-export async function resolvePath(dep: string, file: string): Promise<string> {
-  let depPath: string;
+export async function resolvePath(
+  dep: string,
+  file: string,
+  options: ConfigOptions
+): Promise<string> {
+  let depPath: string = dep;
 
-  if (dep.startsWith(".")) {
-    depPath = await localModulePath(dep, file);
-  } else if (isAbsolute(dep)) {
-    depPath = await localModulePath(dep);
+  for (const [key, value] of Object.entries(options.resolve?.alias || {})) {
+    if (dep.startsWith(key)) {
+      depPath = dep.replace(
+        new RegExp(`^${key}`),
+        resolve(process.cwd(), value)
+      );
+    }
+  }
+
+  if (depPath.startsWith(".")) {
+    depPath = await localModulePath(depPath, file);
+  } else if (isAbsolute(depPath)) {
+    depPath = await localModulePath(depPath);
   } else {
-    depPath = await npmModulePath(dep, file);
+    depPath = await npmModulePath(depPath, file);
   }
   return depPath;
 }
