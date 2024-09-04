@@ -1,3 +1,5 @@
+import { resolve } from "path";
+import { localModulePath } from "../resolve";
 import { emitError } from "./error";
 
 export type ConfigOptions = {
@@ -17,14 +19,13 @@ export type ConfigOptions = {
   }[];
 };
 
-export const loadConfigByPath = (
-  configPath: string
-): { options: ConfigOptions; path: string } => {
+export const loadConfigByPath = (configPath: string): ConfigOptions => {
   let options: ConfigOptions = {};
 
   try {
-    options = require(configPath);
+    const absolutePath = resolve(process.cwd(), configPath);
+    options = require(absolutePath);
   } catch (error) {}
 
-  return { options, path: configPath };
+  return options;
 };

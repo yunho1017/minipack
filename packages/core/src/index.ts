@@ -1,4 +1,4 @@
-import { mkdirSync, readFileSync, writeFileSync } from "fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { resolvePath, localModulePath } from "./resolve";
 import { loadModule } from "./loader";
 import { emitError } from "./utils/error";
@@ -9,7 +9,7 @@ const babylon = require("babylon");
 const traverse = require("babel-traverse").default;
 
 (async () => {
-  const options = loadConfigByPath("minipack.config").options;
+  const options = loadConfigByPath("./minipack.config");
 
   let ID = 0;
 
@@ -115,7 +115,9 @@ const traverse = require("babel-traverse").default;
 
   const entry = options.entry || process.argv[2];
 
-  let entryFile = entry ? await localModulePath(entry) : undefined;
+  let entryFile = entry
+    ? await localModulePath(entry, process.cwd())
+    : undefined;
 
   if (!entryFile) {
     emitError("No entry");
@@ -125,10 +127,14 @@ const traverse = require("babel-traverse").default;
   const graph = await createGraph(entryFile);
   const result = bundle(graph);
 
-  mkdirSync(options.output ? dirname(options.output) : "dist");
-  writeFileSync(
-    options.output ? await localModulePath(options.output) : "./dist/index.js",
-    result,
-    "utf8"
-  );
+  const output = options.output || "dist";
+
+  // 디렉토리가 존재하지 않으면 생성
+  if (!existsSync(output)) {
+    mkdirSync(output, { recursive: true });
+  }
+
+  // 파일 생성 및 내용 쓰기
+
+  writeFileSync(`${output}/index.js`, result, "utf8");
 })();

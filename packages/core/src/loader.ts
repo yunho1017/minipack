@@ -17,7 +17,7 @@ export const loadModule = async (
       return content;
     }
 
-    loadedContent = await rule.loader(content, emitError);
+    loadedContent = await rule.loader(loadedContent, emitError);
   }
 
   return loadedContent;

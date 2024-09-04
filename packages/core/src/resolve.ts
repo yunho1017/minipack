@@ -36,45 +36,39 @@ export async function localModulePath(
   path: string,
   from?: string
 ): Promise<string> {
-  const absPath = from ? resolve(dirname(from), path) : resolve(path);
+  const absPath = from
+    ? resolve(isDir(from) ? from : dirname(from), path)
+    : resolve(path);
   const tsPath = await addExtensionFromDirectory(absPath);
   if (isFile(tsPath)) {
     return tsPath;
   }
 
   const indexPath = await addExtensionFromDirectory(resolve(absPath, "index"));
-  if (isDir(absPath) && isFile(indexPath)) {
-    return indexPath;
-  }
-
-  return emitError(`Cannot find module '${path}'.`);
+  return indexPath;
 }
 
 async function npmModulePath(pkg: string, from: string): Promise<string> {
   let projRoot = dirname(from);
+
+  try {
+    return require.resolve(pkg, { paths: [projRoot] });
+  } catch (error) {
+    console.error(`Cannot find module '${pkg}' from '${from}':`, error);
+  }
+
   while (!isDir(resolve(projRoot, "node_modules"))) {
     projRoot = dirname(projRoot);
+    if (projRoot === "/") break;
   }
 
-  let pkgRoot = resolve(projRoot, "node_modules", pkg);
-
-  let jsPath = pkgRoot + ".js";
-  if (isFile(jsPath)) {
-    return jsPath;
-  }
-
-  let packageJSONPath = resolve(pkgRoot, "package.json");
-  if (isFile(packageJSONPath)) {
-    let main: string =
-      require(packageJSONPath).module || require(packageJSONPath).main;
-    if (main) {
-      return resolve(pkgRoot, main);
-    }
-  }
-
-  let indexPath = await addExtensionFromDirectory(resolve(pkgRoot, "index"));
-  if (isFile(indexPath)) {
-    return indexPath;
+  try {
+    return require.resolve(pkg, { paths: [projRoot] });
+  } catch (error) {
+    console.error(
+      `Cannot find module '${pkg}' from root '${projRoot}':`,
+      error
+    );
   }
 
   return emitError(`Cannot find module '${pkg}'.`);
