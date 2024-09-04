@@ -15,13 +15,13 @@ A simple module bundler, inspired by [minipack](https://github.com/ronami/minipa
 ### Install globally with npm
 
 ```shell
-npm install -g @yuno/minipack
+npm install -g @yunho1017/minipack
 ```
 
 ### Install your package.json
 
 ```shell
-yarn add @yuno/minipack
+yarn add @yunho1017/minipack
 ```
 
 ## How to use

@@ -1,5 +1,5 @@
 {
-  "name": "@yuno/minipack",
+  "name": "@yunho1017/minipack",
   "version": "0.1.0",
   "author": "Yunho Seo",
   "license": "MIT",
@@ -18,7 +18,8 @@
     "src"
   ],
   "scripts": {
-    "build": "rm -rf dist && rollup -c rollup.config.js"
+    "build": "rm -rf dist && rollup -c rollup.config.js",
+    "release": "yarn build && yarn publish"
   },
   "dependencies": {
     "babel-traverse": "^6.26.0",
@@ -32,5 +33,14 @@
     "rollup": "^4.18.0",
     "tslib": "^2.6.3",
     "typescript": "^5.4.5"
+  },
+  "keywords": [
+    "minipack",
+    "bundler",
+    "webpack",
+    "rollup"
+  ],
+  "publishConfig": {
+    "access": "public"
   }
 }

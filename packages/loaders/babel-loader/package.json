@@ -1,5 +1,5 @@
 {
-  "name": "@yuno/babel-loader",
+  "name": "@yunho1017/babel-loader",
   "version": "0.1.0",
   "author": "Yunho Seo",
   "license": "MIT",
@@ -11,7 +11,21 @@
   "dependencies": {
     "@babel/preset-env": "^7.25.4"
   },
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "release": "yarn publish"
+  },
   "peerDependencies": {
     "@babel/core": "^7.25.2"
+  },
+  "keywords": [
+    "minipack",
+    "loader",
+    "babel"
+  ],
+  "publishConfig": {
+    "access": "public"
   }
 }

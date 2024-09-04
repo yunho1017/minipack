@@ -1,10 +1,7 @@
 {
-  "name": "@yuno/minipack",
+  "name": "minipack",
   "private": true,
-  "version": "0.1.0",
   "workspaces": [
     "packages/**/*"
-  ],
-  "description": "A simple module bundler",
-  "license": "MIT"
+  ]
 }
