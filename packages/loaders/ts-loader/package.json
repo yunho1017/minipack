@@ -1,0 +1,14 @@
+{
+  "name": "@yuno/ts-loader",
+  "version": "0.1.0",
+  "author": "Yunho Seo",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yunho1017/minipack.git"
+  },
+  "main": "src/index.js",
+  "peerDependencies": {
+    "typescript": "^5.5.4"
+  }
+}
