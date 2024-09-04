@@ -8,7 +8,8 @@ A simple module bundler, inspired by [minipack](https://github.com/ronami/minipa
 - [x] Resolve circular dependency
 - [x] `node_modules` resolution
 - [x] Config file
-- [x] Resolve Plugin, Loader
+  - [x] Resolve Alias Option
+  - [x] Custom loader (ts-loader, babel-loader)
 
 ## Install
 
