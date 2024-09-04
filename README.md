@@ -1,43 +1,59 @@
-## 📦 Minipack
+# Tinypack
 
-> A simplified example of a modern module bundler written in JavaScript
+A simple TypeScript module bundler, inspired by [minipack](https://github.com/ronami/minipack)
 
-### Introduction
+## Features
 
-As front-end developers, we spend a lot of time working with tools like [Webpack](https://github.com/webpack/webpack), [Browserify](https://github.com/browserify/browserify), and [Parcel](https://github.com/parcel-bundler/parcel).
+- [x] Minimal dependency (only [the TypeScript Compiler API](https://github.com/Microsoft/TypeScript/wiki/Using-the-Compiler-API))
+- [x] Type check
+- [x] Bundle TypeScript modules (only ECMAScript Modules)
+- [x] Remove duplication for the same module
+- [x] Resolve circular dependency
+- [x] `node_modules` resolution
 
-Understanding how those tools work can help us make better decisions on how we write our code. By understanding how our code turns into a bundle and how that bundle looks like we can also debug it better.
+## Install
 
-The purpose of this project is to explain how most bundlers work under the hood. It contains a short implementation of a simplified but still reasonably accurate bundler. Along with the code, there are comments explaining what the code is trying to achieve.
+### Install globally with npm
 
-### Cool, where do I start?
-
-Head on to the source code: [src/minipack.js](src/minipack.js).
-
-### Try running the code
-
-Start by installing dependencies:
-
-```sh
-$ npm install
+```shell
+npm install -g @utatti/tinypack
 ```
 
-And then run our script:
+Run with `tinypack`.
 
-```sh
-$ node src/minipack.js
+### Manual install from source
+
+```shell
+git clone https://github.com/utatti/tinypack.git
+cd tinypack
+yarn # or `npm i` should work too
 ```
 
-### Additional links
+Run `bin/tinypack` in the project root.
 
-- [AST Explorer](https://astexplorer.net)
-- [Babel REPL](https://babeljs.io/repl)
-- [Babylon](https://github.com/babel/babel/tree/master/packages/babel-parser)
-- [Babel Plugin Handbook](https://github.com/thejameskyle/babel-handbook/blob/master/translations/en/plugin-handbook.md)
-- [Webpack: Modules](https://webpack.js.org/concepts/modules)
+## How to use
 
-### Read this in other languages
+```shell
+tinypack path/to/entry.ts
+```
 
-- [한글/Korean](https://github.com/hg-pyun/minipack-kr)
-- [中文/Chinese](https://github.com/chinanf-boy/minipack-explain)
-- [Русский/Russian](https://github.com/makewebme/build-your-own-webpack)
+### Play with [examples](examples)
+
+```shell
+tinypack examples/01-simple # stdout
+tinypack examples/01-simple | node # run
+```
+
+## How does it work?
+
+Use [the code](src/tinypack.ts), Luke!
+
+## References
+
+- [Minipack](https://github.com/ronami/minipack): A simplified example of a
+  modern module bundler written in JavaScript
+- [The TypeScript Compiler API](https://github.com/Microsoft/TypeScript/wiki/Using-the-Compiler-API)
+
+## License
+
+[MIT](LICENSE)
