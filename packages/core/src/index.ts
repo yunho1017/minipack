@@ -26,16 +26,17 @@ const traverse = require("babel-traverse").default;
     const code = await loadModule(content, filename, options);
     const dependencies: string[] = [];
 
-    traverse(
-      babylon.parse(code, {
-        sourceType: "module",
-      }),
-      {
-        ImportDeclaration: ({ node }: any) => {
-          dependencies.push(node.source.value);
-        },
-      }
-    );
+    traverse(babylon.parse(code, { sourceType: "module" }), {
+      CallExpression: (path: any) => {
+        const callee = path.node.callee;
+        if (callee.type === "Identifier" && callee.name === "require") {
+          const argument = path.node.arguments[0];
+          if (argument && argument.type === "StringLiteral") {
+            dependencies.push(argument.value);
+          }
+        }
+      },
+    });
 
     const id = ID++;
 
@@ -49,6 +50,7 @@ const traverse = require("babel-traverse").default;
   }
 
   async function createGraph(entry: string) {
+    let fileModuleIdMap = new Map([[entry, ID]]);
     const mainAsset = await createAsset(entry);
 
     const queue = [mainAsset];
@@ -57,53 +59,61 @@ const traverse = require("babel-traverse").default;
       for (const relativePath of asset.dependencies) {
         const absolutePath = await resolvePath(relativePath, asset.filename);
 
-        const child = await createAsset(absolutePath);
-
-        asset.mapping[relativePath] = child.id;
-
-        queue.push(child);
+        let depID = fileModuleIdMap.get(absolutePath);
+        if (depID === undefined) {
+          const child = await createAsset(absolutePath);
+          fileModuleIdMap.set(absolutePath, child.id);
+          asset.mapping[relativePath] = child.id;
+          queue.push(child);
+        } else {
+          asset.mapping[relativePath] = depID;
+        }
       }
     }
 
     return queue;
   }
 
-  function bundle(graph: any[]) {
-    let modules = "";
-
-    graph.forEach((mod) => {
-      modules += `${mod.id}: [
-      function (require, module, exports) {
-        ${mod.code}
-      },
-      ${JSON.stringify(mod.mapping)},
-    ],`;
-    });
-
-    const result = `
-    (function(modules) {
-      function require(id) {
-        const [fn, mapping] = modules[id];
-
-        function localRequire(name) {
-          return require(mapping[name]);
+  function bundle(graph: Module[]) {
+    function* generate(modules: Module[]) {
+      yield ";(function (modules) {";
+      yield `
+    var executedModules = {};
+    (function executeModule(id) {
+      if (executedModules[id]) return executedModules[id];
+    
+      var mod = modules[id];
+      var localRequire = function (path) {
+        return executeModule(mod[1][path]);
+      };
+      var module = { exports: {} };
+      executedModules[id] = module.exports;
+      mod[0](localRequire, module, module.exports);
+      return module.exports;
+    })(0);
+    `;
+      yield "})({";
+      for (let mod of modules) {
+        yield `${mod.id}: [`;
+        yield `function (require, module, exports) {`;
+        yield mod.code;
+        yield "}, {";
+        for (let [key, val] of Object.entries(mod.mapping)) {
+          yield `${JSON.stringify(key)}: ${val},`;
         }
-
-        const module = { exports : {} };
-
-        fn(localRequire, module, module.exports);
-
-        return module.exports;
+        yield "}";
+        yield "],";
       }
-
-      require(0);
-    })({${modules}})
-  `;
-
+      yield "})";
+    }
+    let result = "";
+    for (let code of generate(graph)) {
+      result += code + "\n";
+    }
     return result;
   }
 
-  const entry = options.entry ?? "";
+  const entry = options.entry ?? process.argv[2];
   let entryFile = await localModulePath(entry);
 
   if (!entryFile) emitError("No entry");
