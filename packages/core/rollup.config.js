@@ -12,11 +12,6 @@ module.exports = [
     plugins: [
       typescript(),
       resolve({ extensions: [".js", ".jsx", ".ts", ".tsx"] }),
-      babel({
-        extensions: [".js", ".jsx", ".ts", ".tsx"],
-        babelHelpers: "bundled",
-        rootMode: "upward",
-      }),
     ],
   },
 ];

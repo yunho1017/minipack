@@ -113,10 +113,14 @@ const traverse = require("babel-traverse").default;
     return result;
   }
 
-  const entry = options.entry ?? process.argv[2];
-  let entryFile = await localModulePath(entry);
+  const entry = options.entry || process.argv[2];
 
-  if (!entryFile) emitError("No entry");
+  let entryFile = entry ? await localModulePath(entry) : undefined;
+
+  if (!entryFile) {
+    emitError("No entry");
+    return;
+  }
 
   const graph = await createGraph(entryFile);
   const result = bundle(graph);

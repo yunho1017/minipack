@@ -12,7 +12,7 @@ export const loadModule = async (
   });
 
   let loadedContent = content;
-  for (const rule of loaders ?? []) {
+  for (const rule of loaders || []) {
     if (!rule.loader) {
       return content;
     }
