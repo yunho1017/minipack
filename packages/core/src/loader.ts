@@ -11,13 +11,17 @@ export const loadModule = async (
     return testMatch && !excludeMatch;
   });
 
+  const context = {
+    resourcePath: file,
+  };
+
   let loadedContent = content;
   for (const rule of loaders || []) {
     if (!rule.loader) {
       return content;
     }
 
-    loadedContent = await rule.loader(loadedContent, emitError);
+    loadedContent = await rule.loader.call(context, loadedContent, emitError);
   }
 
   return loadedContent;
